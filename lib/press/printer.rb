@@ -4,7 +4,7 @@ module Press
   module Printer
 
     def self.print(*data, &blk)
-      ouput format(*data), &blk
+      output format(*data), &blk
     end
 
     def self.printfm(file, m, *data, &blk)
