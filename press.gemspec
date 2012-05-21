@@ -1,0 +1,11 @@
+Gem::Specification.new do |s|
+  s.name = "press"
+  s.email = "mark.fine@gmail.com"
+  s.version = "0.1"
+  s.description = "Data and exception printer."
+  s.summary = "printer"
+  s.authors = ["Mark Fine"]
+  s.homepage = "http://github.com/mfine/press"
+
+  s.require_paths = ["lib"]
+end
