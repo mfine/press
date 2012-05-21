@@ -4,34 +4,32 @@ module Press
   module Printer
 
     def self.print(*data, &blk)
-      output format(*data), &blk
+      write $stdout, hashify(*data), &blk
     end
 
     def self.printfm(file, m, *data, &blk)
-      output formatfm(file, m, *data), &blk
+      write $stdout, hashify(*data, file: File.basename(file, ".rb"), fn: m), &blk
     end
 
     def self.printe(e, *data)
-      output e, format(*data)
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message)
     end
 
     def self.printfme(file, m, e, *data)
-      output e, formatfm(file, m, *data)
+      write $stderr, hashify(*data, file: File.basename(file, ".rb"), fn: m, at: "error", class: e.class, message: e.message)
     end
 
-    def self.format(*data)
-      data.compact
-    end
-
-    def self.formatfm(file, m, *data)
-      format(*data).reduce(file: File.basename(file,"*.rb"), fn: m) { |d, v| d.merge(v) }
+    def self.hashify(*data, initial)
+      data.compact.reduce(initial) { |d, v| d.merge v }
     end
 
     def self.stringify(data)
-      data.map do |k, v|
+      data.map do |(k, v)|
         case v
-        when Hash, Array
-          "#{k}=..."
+        when Hash
+          "#{k}={.."
+        when Array
+          "#{k}=[.."
         when NilClass
           "#{k}=nil"
         when Float
@@ -42,25 +40,20 @@ module Press
           v_str = v.to_s
           v_str.match(/\s/) ? "#{k}=\"#{v_str}\"" : "#{k}=#{v_str}"
         end
-      end
+      end.join(" ")
     end
 
-    def self.output(data, &blk)
+    def self.write(file, data, &blk)
       unless blk
-        $stdout.puts stringify(data)
-        $stdout.flush
+        file.puts stringify(data)
+        file.flush
       else
         start = Time.now
-        output data.merge(at: "start")
+        write file, data.merge(at: "start")
         result = yield
-        output data.merge(at: "finish", elapsed: Time.now - start)
+        write file, data.merge(at: "finish", elapsed: Time.now - start)
         result
       end
-    end
-
-    def self.outpute(e, data)
-      $stderr.puts stringify(data.merge(at: "exception", class: e.class, message: e.message))
-      $stderr.flush
     end
   end
 end
