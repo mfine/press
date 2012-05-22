@@ -2,19 +2,19 @@ require "press/printer"
 
 module Press
 
-  def print(*data, &blk)
-    Printer.print *data, &blk
+  def pd(*data, &blk)
+    Printer.pd *data, &blk
   end
 
-  def printfm(file, m, *data, &blk)
-    Printer.printfm file, m, *data, &blk
+  def pdfm(file, m, *data, &blk)
+    Printer.pdfm file, m, *data, &blk
   end
 
-  def printe(e, *data)
-    Printer.printe e, *data
+  def pde(e, *data)
+    Printer.pde e, *data
   end
 
-  def printfme(file, m, e, *data)
-    Printer.printfme file, m, e, *data
+  def pdfme(file, m, e, *data)
+    Printer.pdfme file, m, e, *data
   end
 end

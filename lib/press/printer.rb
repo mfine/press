@@ -3,19 +3,19 @@ require "time"
 module Press
   module Printer
 
-    def self.print(*data, &blk)
+    def self.pd(*data, &blk)
       write $stdout, hashify(*data), &blk
     end
 
-    def self.printfm(file, m, *data, &blk)
+    def self.pdfm(file, m, *data, &blk)
       write $stdout, hashify(*data, file: File.basename(file, ".rb"), fn: m), &blk
     end
 
-    def self.printe(e, *data)
+    def self.pde(e, *data)
       write $stderr, hashify(*data, at: "error", class: e.class, message: e.message)
     end
 
-    def self.printfme(file, m, e, *data)
+    def self.pdfme(file, m, e, *data)
       write $stderr, hashify(*data, file: File.basename(file, ".rb"), fn: m, at: "error", class: e.class, message: e.message)
     end
 
