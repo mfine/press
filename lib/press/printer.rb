@@ -4,7 +4,7 @@ module Press
   module Printer
 
     def self.pd(*data, &blk)
-      write $stdout, hashify(*data), &blk
+      write $stdout, hashify(*data, {}), &blk
     end
 
     def self.pdfm(file, m, *data, &blk)
