@@ -2,6 +2,10 @@ require "press/printer"
 
 module Press
 
+  def ctx(data)
+    Printer.ctx = data
+  end
+
   def pd(*data, &blk)
     Printer.pd *data, &blk
   end

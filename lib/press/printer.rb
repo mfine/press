@@ -3,6 +3,14 @@ require "time"
 module Press
   module Printer
 
+    def self.ctx
+      @ctx ||= {}
+    end
+
+    def self.ctx=(data)
+      @ctx = data
+    end
+
     def self.pd(*data, &blk)
       write $stdout, hashify(*data, {}), &blk
     end
@@ -20,7 +28,7 @@ module Press
     end
 
     def self.hashify(*data, initial)
-      data.compact.reduce(initial) { |d, v| d.merge v }
+      data.compact.reduce(ctx.merge(initial)) { |d, v| d.merge v }
     end
 
     def self.stringify(data)
