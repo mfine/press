@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    press (0.4)
+    press (0.5)
 
 GEM
   remote: http://rubygems.org/
