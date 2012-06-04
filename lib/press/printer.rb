@@ -58,7 +58,12 @@ module Press
       else
         start = Time.now
         write file, data.merge(at: "start")
-        result = yield
+        result = begin
+                   yield
+                 rescue => e
+                   pde(e, data)
+                   raise
+                 end
         write file, data.merge(at: "finish", elapsed: Time.now - start)
         result
       end
