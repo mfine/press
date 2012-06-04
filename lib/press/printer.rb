@@ -24,11 +24,11 @@ module Press
     end
 
     def self.pdfme(file, m, e, *data)
-      write $stderr, hashify(*data, file: File.basename(file, ".rb"), fn: m, at: "error", class: e.class, message: e.message)
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message, file: File.basename(file, ".rb"), fn: m)
     end
 
     def self.hashify(*data, initial)
-      data.compact.reduce(ctx.merge(initial)) { |d, v| d.merge v }
+      data.compact.reduce(initial.merge(ctx)) { |d, v| d.merge v }
     end
 
     def self.stringify(data)
@@ -57,14 +57,14 @@ module Press
         file.flush
       else
         start = Time.now
-        write file, data.merge(at: "start")
+        write file, { at: "start" }.merge(data)
         begin
           result = yield
         rescue => e
-          pde(e, data)
+          pde e, data
           raise
         end
-        write file, data.merge(at: "finish", elapsed: Time.now - start)
+        write file, { at: "finish", elapsed: Time.now - start }.merge(data)
         result
       end
     end
