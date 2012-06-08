@@ -45,7 +45,7 @@ module Press
         when Time
           "#{k}=#{v.iso8601}"
         else
-          v_str = v.to_s
+          v_str = v.to_s.strip
           v_str.match(/\s/) ? "#{k}=\"#{v_str}\"" : "#{k}=#{v_str}"
         end
       end.join(" ")
