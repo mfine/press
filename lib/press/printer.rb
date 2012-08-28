@@ -20,11 +20,11 @@ module Press
     end
 
     def self.pde(e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message)
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0])
     end
 
     def self.pdfme(file, m, e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message, file: File.basename(file, ".rb"), fn: m)
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], file: File.basename(file, ".rb"), fn: m)
     end
 
     def self.hashify(*data, initial)
