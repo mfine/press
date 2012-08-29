@@ -27,7 +27,7 @@ class PressLogger
 
   def self.level(*attrs)
     attrs.each do |attr|
-      class_eval "def #{attr} args; Printer.pd type: @type, level: '#{attr}', message: args end", __FILE__, __LINE__
+      class_eval "def #{attr} args; Press::Printer.pd type: @type, level: '#{attr}', message: args end", __FILE__, __LINE__
     end
   end
 
