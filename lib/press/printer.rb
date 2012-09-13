@@ -20,11 +20,11 @@ module Press
     end
 
     def self.pde(e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0])
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], trace: e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5])
     end
 
     def self.pdfme(file, m, e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], file: File.basename(file, ".rb"), fn: m)
+      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], trace: e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5], file: File.basename(file, ".rb"), fn: m)
     end
 
     def self.hashify(*data, initial)
