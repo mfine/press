@@ -16,15 +16,15 @@ module Press
     end
 
     def self.pdfm(file, m, *data, &blk)
-      write $stdout, hashify(*data, file: File.basename(file, ".rb"), fn: m), &blk
+      write $stdout, hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk
     end
 
     def self.pde(e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], trace: e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5])
+      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a[0], :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5])
     end
 
     def self.pdfme(file, m, e, *data)
-      write $stderr, hashify(*data, at: "error", class: e.class, message: e.message.lines.to_a[0], trace: e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5], file: File.basename(file, ".rb"), fn: m)
+      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a[0], :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5], :file => File.basename(file, ".rb"), :fn => m)
     end
 
     def self.hashify(*data, initial)
@@ -57,14 +57,14 @@ module Press
         file.flush
       else
         start = Time.now
-        write file, { at: "start" }.merge(data)
+        write file, { :at => "start" }.merge(data)
         begin
           result = yield
         rescue => e
           pde e, data
           raise
         end
-        write file, { at: "finish", elapsed: Time.now - start }.merge(data)
+        write file, { :at => "finish", :elapsed => Time.now - start }.merge(data)
         result
       end
     end
