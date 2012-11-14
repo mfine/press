@@ -6,8 +6,8 @@ module Press
     Printer.ctx = data
   end
 
-  def mtx(tag)
-    Printer.mtx = tag
+  def mtx(tag, data)
+    Printer.mtx, Printer.ctx = tag, data
   end
 
   def pd(*data, &blk)
