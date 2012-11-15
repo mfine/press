@@ -3,10 +3,6 @@ require "time"
 module Press
   module Printer
 
-    def self.ctx
-      @ctx ||= {}
-    end
-
     def self.ctx=(data)
       @ctx = data
     end
@@ -19,16 +15,16 @@ module Press
       write $stdout, hashify(*data, {}), &blk
     end
 
-    def self.mpd(*data, &blk)
-      write $stdout, mhashify(@mtx, *data, {}), &blk
+    def self.mpd(*data)
+      write $stdout, mhashify(@mtx, *data, {})
     end
 
     def self.pdfm(file, m, *data, &blk)
       write $stdout, hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk
     end
 
-    def self.mpdfm(file, m, *data, &blk)
-      write $stdout, mhashify([@mtx, File.basename(file, ".rb"), m].compact.join("."), *data, :file => File.basename(file, ".rb"), :fn => m), &blk
+    def self.mpdfm(file, m, *data)
+      write $stdout, mhashify([@mtx, File.basename(file, ".rb"), m].compact.join("."), *data, :file => File.basename(file, ".rb"), :fn => m)
     end
 
     def self.pde(e, *data)
@@ -36,7 +32,7 @@ module Press
     end
 
     def self.mpde(e, *data)
-      write $stderr, mhashify(@mtx, *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect)
+      write $stderr, mhashify([@mtx, "error"].compact.join("."), *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect)
     end
 
     def self.pdfme(file, m, e, *data)
@@ -44,15 +40,15 @@ module Press
     end
 
     def self.mpdfme(file, m, e, *data)
-      write $stderr, mhashify([@mtx, File.basename(file, ".rb"), m].compact.join("."), *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect, :file => File.basename(file, ".rb"), :fn => m)
+      write $stderr, mhashify([@mtx, "error"].compact.join("."), *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect, :file => File.basename(file, ".rb"), :fn => m)
     end
 
     def self.hashify(*data, initial)
-      data.compact.reduce(initial.merge(ctx)) { |d, v| d.merge v }
+      data.compact.reduce(initial.merge(@ctx || {})) { |d, v| d.merge v }
     end
 
     def self.mhashify(mtx, *data, initial)
-      hashify(*data, initial).tap { |d| d[:measure] = [mtx, d[:measure]].compact.join(".") if mtx }
+      hashify(*data, initial).tap { |d| d[:measure] = [mtx, d[:event]].compact.join(".") if mtx }
     end
 
     def self.stringify(data)
@@ -82,14 +78,7 @@ module Press
       else
         start = Time.now
         write file, { :at => "start" }.merge(data)
-        begin
-          result = yield
-        rescue => e
-          pde e, data
-          raise
-        end
-        write file, { :at => "finish", :elapsed => Time.now - start }.merge(data)
-        result
+        yield.tap { write file, { :at => "finish", :elapsed => Time.now - start }.merge(data) }
       end
     end
   end
