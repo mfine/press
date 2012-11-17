@@ -6,24 +6,29 @@ module Press
     Printer.ctx = data
   end
 
+  def mtx(tag)
+    Printer.mtx = tag
+  end
+
   def mctx(tag, data)
-    Printer.mtx, Printer.ctx = tag, data
+    mtx tag
+    ctx data
   end
 
   def pd(*data, &blk)
     Printer.pd *data, &blk
   end
 
-  def mpd(*data)
-    Printer.mpd *data
+  def mpd(*data, &blk)
+    Printer.mpd *data, &blk
   end
 
   def pdfm(file, m, *data, &blk)
     Printer.pdfm file, m, *data, &blk
   end
 
-  def mpdfm(file, m, *data)
-    Printer.mpdfm file, m, *data
+  def mpdfm(file, m, *data, &blk)
+    Printer.mpdfm file, m, *data, &blk
   end
 
   def pde(e, *data)

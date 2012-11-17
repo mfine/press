@@ -15,40 +15,40 @@ module Press
       write $stdout, hashify(*data, {}), &blk
     end
 
-    def self.mpd(*data)
-      write $stdout, mhashify(@mtx, *data, {})
+    def self.mpd(*data, &blk)
+      mwrite $stdout, @mtx, hashify(*data, {}), &blk
     end
 
     def self.pdfm(file, m, *data, &blk)
       write $stdout, hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk
     end
 
-    def self.mpdfm(file, m, *data)
-      write $stdout, mhashify([@mtx, File.basename(file, ".rb"), m].compact.join("."), *data, :file => File.basename(file, ".rb"), :fn => m)
+    def self.mpdfm(file, m, *data, &blk)
+      mwrite $stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk
     end
 
     def self.pde(e, *data)
-      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect)
+      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].compact.inspect)
     end
 
     def self.mpde(e, *data)
-      write $stderr, mhashify([@mtx, "error"].compact.join("."), *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect)
+      mwrite $stderr, [@mtx, "error"].compact.join("."), hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].compact.inspect)
     end
 
     def self.pdfme(file, m, e, *data)
-      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect, :file => File.basename(file, ".rb"), :fn => m)
+      write $stderr, hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].compact.inspect, :file => File.basename(file, ".rb"), :fn => m)
     end
 
     def self.mpdfme(file, m, e, *data)
-      write $stderr, mhashify([@mtx, "error"].compact.join("."), *data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].inspect, :file => File.basename(file, ".rb"), :fn => m)
+      mwrite $stderr, [@mtx, "error"].compact.join("."), hashify(*data, :at => "error", :class => e.class, :message => e.message.lines.to_a.first, :trace => e.backtrace.map { |i| i.match(/(#{Gem.dir}|#{Dir.getwd})?\/(.*):in (.*)/) && $2 }[0..5].compact.inspect, :file => File.basename(file, ".rb"), :fn => m)
     end
 
     def self.hashify(*data, initial)
       data.compact.reduce(initial.merge(@ctx || {})) { |d, v| d.merge v }
     end
 
-    def self.mhashify(mtx, *data, initial)
-      hashify(*data, initial).tap { |d| d[:measure] = [mtx, d[:event]].compact.join(".") if mtx }
+    def self.mtag(tag, data)
+      data.tap { |d| d[:measure] = [tag, d[:event]].compact.join(".") if tag }
     end
 
     def self.stringify(data)
@@ -79,6 +79,20 @@ module Press
         start = Time.now
         write file, { :at => "start" }.merge(data)
         yield.tap { write file, { :at => "finish", :elapsed => Time.now - start }.merge(data) }
+      end
+    end
+
+    def self.mwrite(file, tag, data, &blk)
+      unless blk
+        file.puts stringify(mtag(tag, data))
+        file.flush
+      else
+        start = Time.now
+        write file, { :at => "start" }.merge(data)
+        yield.tap do
+          elapsed = Time.now - start
+          mwrite file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag }
+        end
       end
     end
   end
