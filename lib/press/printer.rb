@@ -88,7 +88,7 @@ module Press
     end
 
     def self.mewrite(data)
-      $stderr.puts stringify(data.tap { |d| d[:measure] = [@mtx, "error"].compact.join(".") })
+      $stderr.puts stringify(data.tap { |d| d[:measure] = [@mtx, "error", d[:event]].compact.join(".") })
       $stderr.flush
     end
 
