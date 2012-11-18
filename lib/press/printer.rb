@@ -12,35 +12,35 @@ module Press
     end
 
     def self.pd(*data, &blk)
-      write(hashify(*data, {}), &blk)
+      write($stdout, hashify(*data, {}), &blk)
     end
 
     def self.mpd(*data, &blk)
-      mwrite(@mtx, hashify(*data, {}), &blk)
+      mwrite($stdout, @mtx, hashify(*data, {}), &blk)
     end
 
     def self.pdfm(file, m, *data, &blk)
-      write(hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
+      write($stdout, hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
     end
 
     def self.mpdfm(file, m, *data, &blk)
-      mwrite([@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
+      mwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
     end
 
     def self.pde(e, *data)
-      ewrite(hashify(*data, errorify(e)))
+      write($stderr, hashify(*data, errorify(e)))
     end
 
     def self.mpde(e, *data)
-      mewrite(hashify(*data, errorify(e)))
+      mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
     end
 
     def self.pdfme(file, m, e, *data)
-      ewrite(hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
+      write($stderr, hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.mpdfme(file, m, e, *data)
-      mewrite(hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
+      mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.errorify(e)
@@ -71,35 +71,29 @@ module Press
       end.join(" ")
     end
 
-    def self.ewrite(data)
-      $stderr.puts stringify(data)
-      $stderr.flush
-    end
-
-    def self.write(data, &blk)
+    def self.write(file, data, &blk)
       unless blk
-        $stdout.puts stringify(data)
-        $stdout.flush
+        file.puts stringify(data)
+        file.flush
       else
         start = Time.now
-        write({ :at => "start" }.merge(data))
-        yield.tap { write({ :at => "finish", :elapsed => Time.now - start }.merge(data)) }
+        write(file, { :at => "start" }.merge(data))
+        yield.tap do
+          write(file, { :at => "finish", :elapsed => Time.now - start }.merge(data))
+        end
       end
     end
 
-    def self.mewrite(data)
-      $stderr.puts stringify(data.tap { |d| d[:measure] = [@mtx, "error", d[:event]].compact.join(".") })
-      $stderr.flush
-    end
-
-    def self.mwrite(tag, data, &blk)
+    def self.mwrite(file, tag, data, &blk)
       unless blk
-        $stdout.puts stringify(data.tap { |d| d[:measure] = [tag, d[:event]].compact.join(".") if tag })
-        $stdout.flush
+        write(file, data.tap { |d| d[:measure] = [tag, d[:event]].compact.join(".") if tag })
       else
         start = Time.now
-        write({ :at => "start" }.merge(data))
-        yield.tap { elapsed = Time.now - start; mwrite(tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag }) }
+        write(file, { :at => "start" }.merge(data))
+        yield.tap do
+          elapsed = Time.now - start;
+          mwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
+        end
       end
     end
   end
