@@ -70,6 +70,40 @@ module Measure
   end
 end
 
+module MeasureEvent
+  extend Press
+
+  def self.run
+    puts "########## running ##########"
+
+    mpd hello: "world", event: "sunset"
+    puts
+
+    r = mpd hello: "world", event: "sunset" do
+      42
+    end
+    puts r
+    puts
+
+    mpdfm __FILE__, __method__, hello: "world", event: "sunset"
+    puts
+
+    r = mpdfm __FILE__, __method__, hello: "world", event: "sunset" do
+      42
+    end
+    puts r
+    puts
+
+    begin
+      1 / 0
+    rescue => e
+      mpde e, hello: "world", event: "sunset"
+      mpdfme __FILE__, __method__, e, hello: "world", event: "sunset"
+    end
+    puts
+  end
+end
+
 Plain.mctx nil, nil
 Plain.run
 Plain.mctx nil, app: "slasher", deploy: "staging"
@@ -81,3 +115,10 @@ Measure.mctx ["ripper", "production"].join("."), nil
 Measure.run
 Measure.mctx ["screamer", "testing"].join("."), app: "shreiker", deploy: "beta"
 Measure.run
+
+MeasureEvent.mctx nil, nil
+MeasureEvent.run
+MeasureEvent.mctx ["ripper", "production"].join("."), nil
+MeasureEvent.run
+MeasureEvent.mctx ["screamer", "testing"].join("."), app: "shreiker", deploy: "beta"
+MeasureEvent.run
