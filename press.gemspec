@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name = "press"
   s.email = "mark.fine@gmail.com"
-  s.version = "0.17"
+  s.version = "0.18"
   s.description = "Data and exception printer."
   s.summary = "printer"
   s.authors = ["Mark Fine"]

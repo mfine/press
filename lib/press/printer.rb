@@ -27,12 +27,20 @@ module Press
       mwrite([@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
     end
 
-    def self.mpde(e, *data)
+    def self.pde(e, *data)
       ewrite(hashify(*data, errorify(e)))
     end
 
-    def self.mpdfme(file, m, e, *data)
+    def self.mpde(e, *data)
+      mewrite(hashify(*data, errorify(e)))
+    end
+
+    def self.pdfme(file, m, e, *data)
       ewrite(hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
+    end
+
+    def self.mpdfme(file, m, e, *data)
+      mewrite(hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.errorify(e)
@@ -64,7 +72,7 @@ module Press
     end
 
     def self.ewrite(data)
-      $stderr.puts stringify(data.tap { |d| d[:measure] = [@mtx, "error"].compact.join(".") })
+      $stderr.puts stringify(data)
       $stderr.flush
     end
 
@@ -75,13 +83,13 @@ module Press
       else
         start = Time.now
         write({ :at => "start" }.merge(data))
-        begin
-          yield.tap { write({ :at => "finish", :elapsed => Time.now - start }.merge(data)) }
-        rescue => e
-          ewrite(errorify(e).merge(data))
-          raise e
-        end
+        yield.tap { write({ :at => "finish", :elapsed => Time.now - start }.merge(data)) }
       end
+    end
+
+    def self.mewrite(data)
+      $stderr.puts stringify(data.tap { |d| d[:measure] = [@mtx, "error"].compact.join(".") })
+      $stderr.flush
     end
 
     def self.mwrite(tag, data, &blk)
@@ -91,12 +99,7 @@ module Press
       else
         start = Time.now
         write({ :at => "start" }.merge(data))
-        begin
-          yield.tap { elapsed = Time.now - start; mwrite(tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag }) }
-        rescue => e
-          ewrite(errorify(e).merge(data))
-          raise e
-        end
+        yield.tap { elapsed = Time.now - start; mwrite(tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag }) }
       end
     end
   end
