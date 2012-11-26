@@ -75,6 +75,7 @@ module Press
       unless blk
         file.puts stringify(data)
         file.flush
+        nil
       else
         start = Time.now
         write(file, { :at => "start" }.merge(data))
