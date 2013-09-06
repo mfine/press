@@ -23,6 +23,21 @@ module Press
       mwrite($stdout, @mtx, hashify(*data, {}), &blk)
     end
 
+    # measure print data
+    def self.xpd(*data, &blk)
+      xwrite($stdout, @mtx, hashify(*data, {}), &blk)
+    end
+
+    # sample print data
+    def self.spd(*data)
+      swrite($stdout, @mtx, hashify(*data, {}))
+    end
+
+    # count print data
+    def self.cpd(*data)
+      cwrite($stdout, @mtx, hashify(*data, {}))
+    end
+
     # print data file method
     def self.pdfm(file, m, *data, &blk)
       write($stdout, hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
@@ -31,6 +46,21 @@ module Press
     # measure print data file method
     def self.mpdfm(file, m, *data, &blk)
       mwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
+    end
+
+    # measure print data file method
+    def self.xpdfm(file, m, *data, &blk)
+      xwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
+    end
+
+    # sample print data file method
+    def self.spdfm(file, m, *data)
+      swrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m))
+    end
+
+    # count print data file method
+    def self.cpdfm(file, m, *data)
+      cwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m))
     end
 
     # print data exception
@@ -43,6 +73,11 @@ module Press
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
     end
 
+    # count print data exception
+    def self.cpde(e, *data)
+      cwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
+    end
+
     # print data file method exception
     def self.pdfme(file, m, e, *data)
       write($stderr, hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
@@ -51,6 +86,11 @@ module Press
     # measure print data file method exception
     def self.mpdfme(file, m, e, *data)
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
+    end
+
+    # count print data file method exception
+    def self.cpdfme(file, m, e, *data)
+      cwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.errorify(e)
@@ -106,6 +146,27 @@ module Press
           mwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
         end
       end
+    end
+
+    def self.xwrite(file, tag, data, &blk)
+      unless blk
+        write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] if tag })
+      else
+        start = Time.now
+        write(file, { :at => "start" }.merge(data))
+        yield.tap do
+          elapsed = Time.now - start;
+          xwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
+        end
+      end
+    end
+
+    def self.swrite(file, tag, data)
+      write(file, data.tap { |d| d["sample.#{[tag, d[:event]].compact.join(".")}"] = d[:val] if tag })
+    end
+
+    def self.cwrite(file, tag, data)
+      write(file, data.tap { |d| d["count.#{[tag, d[:event]].compact.join(".")}"] = 1 if tag })
     end
   end
 end
