@@ -73,9 +73,9 @@ module Press
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
     end
 
-    # count print data exception
-    def self.cpde(e, *data)
-      cwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
+    # measure print data exception
+    def self.xpde(e, *data)
+      xwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
     end
 
     # print data file method exception
@@ -88,9 +88,9 @@ module Press
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
-    # count print data file method exception
-    def self.cpdfme(file, m, e, *data)
-      cwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
+    # measure print data file method exception
+    def self.xpdfme(file, m, e, *data)
+      xwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.errorify(e)
@@ -150,7 +150,7 @@ module Press
 
     def self.xwrite(file, tag, data, &blk)
       unless blk
-        write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] if tag })
+        write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
       else
         start = Time.now
         write(file, { :at => "start" }.merge(data))
@@ -166,7 +166,7 @@ module Press
     end
 
     def self.cwrite(file, tag, data)
-      write(file, data.tap { |d| d["count.#{[tag, d[:event]].compact.join(".")}"] = 1 if tag })
+      write(file, data.tap { |d| d["count.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
     end
   end
 end

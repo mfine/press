@@ -78,9 +78,9 @@ module Press
     Printer.mpde e, *data
   end
 
-  # count print data exception
-  def cpde(e, *data)
-    Printer.cpde e, *data
+  # measure print data exception
+  def xpde(e, *data)
+    Printer.xpde e, *data
   end
 
   # print data file method exception
@@ -93,9 +93,9 @@ module Press
     Printer.mpdfme file, m, e, *data
   end
 
-  # count print data file method exception
-  def cpdfme(file, m, e, *data)
-    Printer.cpdfme file, m, e, *data
+  # measure print data file method exception
+  def xpdfme(file, m, e, *data)
+    Printer.xpdfme file, m, e, *data
   end
 
   class Logger
