@@ -23,11 +23,6 @@ module Press
       mwrite($stdout, @mtx, hashify(*data, {}), &blk)
     end
 
-    # measure print data
-    def self.xpd(*data, &blk)
-      xwrite($stdout, @mtx, hashify(*data, {}), &blk)
-    end
-
     # sample print data
     def self.spd(*data)
       swrite($stdout, @mtx, hashify(*data, {}))
@@ -46,11 +41,6 @@ module Press
     # measure print data file method
     def self.mpdfm(file, m, *data, &blk)
       mwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
-    end
-
-    # measure print data file method
-    def self.xpdfm(file, m, *data, &blk)
-      xwrite($stdout, [@mtx, File.basename(file, ".rb"), m].compact.join("."), hashify(*data, :file => File.basename(file, ".rb"), :fn => m), &blk)
     end
 
     # sample print data file method
@@ -73,11 +63,6 @@ module Press
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
     end
 
-    # measure print data exception
-    def self.xpde(e, *data)
-      xwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e)))
-    end
-
     # print data file method exception
     def self.pdfme(file, m, e, *data)
       write($stderr, hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
@@ -86,11 +71,6 @@ module Press
     # measure print data file method exception
     def self.mpdfme(file, m, e, *data)
       mwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
-    end
-
-    # measure print data file method exception
-    def self.xpdfme(file, m, e, *data)
-      xwrite($stderr, [@mtx, "error"].compact.join("."), hashify(*data, errorify(e).merge(:file => File.basename(file, ".rb"), :fn => m)))
     end
 
     def self.errorify(e)
@@ -131,19 +111,6 @@ module Press
         write(file, { :at => "start" }.merge(data))
         yield.tap do
           write(file, { :at => "finish", :elapsed => Time.now - start }.merge(data))
-        end
-      end
-    end
-
-    def self.xwrite(file, tag, data, &blk)
-      unless blk
-        write(file, data.tap { |d| d[:measure] = [tag, d[:event]].compact.join(".") if tag })
-      else
-        start = Time.now
-        write(file, { :at => "start" }.merge(data))
-        yield.tap do
-          elapsed = Time.now - start;
-          xwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
         end
       end
     end
