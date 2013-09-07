@@ -135,7 +135,7 @@ module Press
       end
     end
 
-    def self.mwrite(file, tag, data, &blk)
+    def self.xwrite(file, tag, data, &blk)
       unless blk
         write(file, data.tap { |d| d[:measure] = [tag, d[:event]].compact.join(".") if tag })
       else
@@ -143,12 +143,12 @@ module Press
         write(file, { :at => "start" }.merge(data))
         yield.tap do
           elapsed = Time.now - start;
-          mwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
+          xwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
         end
       end
     end
 
-    def self.xwrite(file, tag, data, &blk)
+    def self.mwrite(file, tag, data, &blk)
       unless blk
         write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
       else
@@ -156,7 +156,7 @@ module Press
         write(file, { :at => "start" }.merge(data))
         yield.tap do
           elapsed = Time.now - start;
-          xwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
+          mwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
         end
       end
     end
