@@ -129,11 +129,11 @@ module Press
     end
 
     def self.swrite(file, tag, data)
-      write(file, data.tap { |d| d["sample.#{[tag, d[:event]].compact.join(".")}"] = d[:val] if tag })
+      write(file, data.tap { |d| d["sample##{[tag, d[:event]].compact.join(".")}"] = d[:val] if tag })
     end
 
     def self.cwrite(file, tag, data)
-      write(file, data.tap { |d| d["count.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
+      write(file, data.tap { |d| d["count##{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
     end
   end
 end
