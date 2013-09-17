@@ -117,7 +117,7 @@ module Press
 
     def self.mwrite(file, tag, data, &blk)
       unless blk
-        write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
+        write(file, data.tap { |d| d["measure##{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
       else
         start = Time.now
         write(file, { :at => "start" }.merge(data)) if ENV.key?("PRESS_DEBUG")
