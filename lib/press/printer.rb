@@ -108,7 +108,7 @@ module Press
         nil
       else
         start = Time.now
-        write(file, { :at => "start" }.merge(data))
+        write(file, { :at => "start" }.merge(data)) if ENV.key?("PRESS_DEBUG")
         yield.tap do
           write(file, { :at => "finish", :elapsed => Time.now - start }.merge(data))
         end
@@ -120,7 +120,7 @@ module Press
         write(file, data.tap { |d| d["measure.#{[tag, d[:event]].compact.join(".")}"] = d[:val] || 1 if tag })
       else
         start = Time.now
-        write(file, { :at => "start" }.merge(data))
+        write(file, { :at => "start" }.merge(data)) if ENV.key?("PRESS_DEBUG")
         yield.tap do
           elapsed = Time.now - start;
           mwrite(file, tag, { :at => "finish", :elapsed => elapsed }.merge(data).tap { |d| d[:val] = elapsed if tag })
