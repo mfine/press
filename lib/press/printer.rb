@@ -101,10 +101,16 @@ module Press
       end.join(" ")
     end
 
+    def self.mutex
+      @mutex ||= Mutex.new
+    end
+
     def self.write(file, data, &blk)
       unless blk
-        file.puts stringify(data)
-        file.flush
+        mutex.synchronize do
+          file.puts stringify(data)
+          file.flush
+        end
         nil
       else
         start = Time.now
